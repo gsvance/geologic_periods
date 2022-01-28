@@ -1,0 +1,12 @@
+Cambrian
+Ordovician	
+Silurian
+Devonian
+Mississippian
+Pennsylvanian
+Permian
+Triassic
+Jurassic
+Cretaceous
+Tertiary
+Quaternary

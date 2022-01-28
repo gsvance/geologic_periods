@@ -1,0 +1,84 @@
+First choices:
+{'red': 1, 'green': 5, 'blue': 1, 'purple': 5, 'yellow': 4, 'orange': 0, 'pink': 0, 'grey': 0, 'black': 0, 'white': 1, 'teal': 5, 'brown': 0}
+All top choices:
+{'red': 2, 'green': 14, 'blue': 2, 'purple': 8, 'yellow': 7, 'orange': 7, 'pink': 4, 'grey': 1, 'black': 0, 'white': 2, 'teal': 16, 'brown': 3}
+(18, 10, 6, 2, 0, 0, 0)
+(18, 11, 5, 2, 2, 0, 0)
+(18, 12, 5, 1, 2, 0, 0)
+(19, 11, 5, 3, 2, 0, 0)
+(20, 10, 6, 4, 1, 1, 0)
+(20, 13, 5, 2, 1, 0, 0)
+(21, 11, 5, 5, 1, 0, 0)
+(21, 11, 7, 3, 1, 0, 0)
+(21, 11, 7, 3, 2, 0, 0)
+2 alternate best matches
+MATCH 1
+  red
+    Erick (choice #1)
+    Micah (choice #3)
+  green
+    Sergio (choice #1)
+    Lillian (choice #1)
+  blue
+    Alexandra (choice #1)
+    Claire (choice #3)
+  purple
+    Dalton (choice #1)
+    Laura (choice #1)
+  yellow
+    Kaylee (choice #1)
+    Bryson (choice #1)
+  orange
+    Diana (choice #2)
+    Jordan (choice #2)
+  pink
+    Luke (choice #3)
+    Brody (choice #2)
+  grey
+    Kaleb (choice #2)
+  black
+    Brayden (unhappy)
+  white
+    Kelly (choice #2)
+    Adrian (choice #1)
+  teal
+    Amber (choice #1)
+    Lilly (choice #1)
+  brown
+    Eva (choice #2)
+    Gabriella (choice #2)
+MATCH 2
+  red
+    Erick (choice #1)
+    Micah (choice #3)
+  green
+    Sergio (choice #1)
+    Diana (choice #1)
+  blue
+    Alexandra (choice #1)
+    Claire (choice #3)
+  purple
+    Dalton (choice #1)
+    Laura (choice #1)
+  yellow
+    Kaylee (choice #1)
+    Bryson (choice #1)
+  orange
+    Lillian (choice #2)
+    Jordan (choice #2)
+  pink
+    Luke (choice #3)
+    Brody (choice #2)
+  grey
+    Kaleb (choice #2)
+  black
+    Brayden (unhappy)
+  white
+    Kelly (choice #2)
+    Adrian (choice #1)
+  teal
+    Amber (choice #1)
+    Lilly (choice #1)
+  brown
+    Eva (choice #2)
+    Gabriella (choice #2)
