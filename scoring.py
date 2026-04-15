@@ -9,12 +9,12 @@ Created 7 Mar 2023 by Greg Vance
 """
 
 import numpy as np
+import numpy.typing as npt
 
-from mytypes import Array
 from organization import Sets
 
 
-def classic_scoring(sets: Sets) -> Array:
+def classic_scoring(sets: Sets) -> npt.NDArray[np.int64]:
     """Compute weights that implement the classic "tuple scoring" method.
 
     The tuple scoring method prioritizes "happy" students, then students who
@@ -76,15 +76,17 @@ def classic_scoring(sets: Sets) -> Array:
     # However, we don't want to make the point values any *larger* than they
     # absolutely need to be, because they grow exponentially and the float64s
     # used by the solver only have so many digits of precision...
-    weights = np.zeros((sets.n_s, sets.n_t), dtype='int64')
+    weights: npt.NDArray[np.int64] = np.zeros(
+        (sets.n_s, sets.n_t), dtype='int64',
+    )
     for s in sets.s:
         for t in sets.t:
             weight_sum = 0
             for c in sets.c:
                 pref = sets.pref[s, t, c]
-                weight_sum += pref * score_happy
-                weight_sum += pref * scores_any[c]
-                weight_sum += pref * sets.hp[s] * scores_hp[c]
+                weight_sum += int(pref) * score_happy
+                weight_sum += int(pref) * scores_any[int(c)]
+                weight_sum += int(pref) * int(sets.hp[s]) * scores_hp[int(c)]
             weights[s, t] = weight_sum
 
     # Do a quick test to try and detect if the classic scoring system is
