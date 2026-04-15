@@ -93,11 +93,11 @@ def classic_scoring(sets: Sets) -> npt.NDArray[np.int64]:
     # breaking down. This could conceivably happen if n_s, n_c, and n_hp are
     # all just much too big for the strategy being used here.
     int_info = np.iinfo(weights.dtype)
-    nonzero = (weights != 0)
+    nonzero = weights != 0
     weight_min = np.amin(weights, initial=int_info.max, where=nonzero)
     weight_max = np.amax(weights, initial=int_info.min, where=nonzero)
     float_min, float_max = np.float64(weight_min), np.float64(weight_max)
-    if not (float_max + float_min > float_max):
+    if not float_max + float_min > float_max:
         raise RuntimeError("classic scoring system broke down")
 
     return weights
