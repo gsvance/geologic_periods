@@ -1,2 +1,5 @@
+# Compiled modules
 __pycache__/
 
+# Virtual environment
+/.venv/
