@@ -4,8 +4,6 @@
 # Created 7 Mar 2023 by Greg Vance
 
 
-from typing import List
-
 from model import solve_geologic_periods_problem, classic_scoring
 from mytypes import Choices
 
@@ -16,7 +14,7 @@ t = [f"topic-{i+1}" for i in range(6)]
 hp = [False for _ in range(len(s))]
 hp[s.index('student-5')] = True
 
-ch: List[Choices] = [
+ch: list[Choices] = [
     ['topic-1', 'topic-4', 'topic-2'],
     ['topic-1', 'topic-5', 'topic-6'],
     ['topic-6', 'topic-1', 'topic-2'],
