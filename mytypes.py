@@ -3,12 +3,10 @@
 Created 7 Mar 2023 by Greg Vance
 """
 
-from typing import List, Union
-
 import numpy as np
 from scipy import optimize
 
 
-Array = np.ndarray
-Choices = Union[List[str], List[None], List[Union[str, None]]]
-Result = optimize.OptimizeResult
+type Array = np.ndarray
+type Choices = list[str] | list[None] | list[str | None]
+type Result = optimize.OptimizeResult
