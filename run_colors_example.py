@@ -7,11 +7,11 @@
 from model import solve_geologic_periods_problem, classic_scoring
 
 
-with open('old_stuff/Colors.txt', 'r') as colors:
+with open('old_stuff/Colors.txt', 'r', encoding='ascii') as colors:
     topics = colors.read().strip().split()
 
 students, high_priority, choices = [], [], []
-with open('old_stuff/FakeChoices.csv', 'r') as csv:
+with open('old_stuff/FakeChoices.csv', 'r', encoding='ascii') as csv:
     csv.readline()
     for line in csv:
         name, yesno, choice1, choice2, choice3 = line.strip().split(',')
