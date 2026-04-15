@@ -108,7 +108,7 @@ class Maps:
             if len(set(choices_sublist)) != self.sets.n_c:
                 raise ValueError("non-unique choices")
             for topic_choice in choices_sublist:
-                non_none = (topic_choice is not None)
+                non_none = topic_choice is not None
                 if non_none and topic_choice not in self.sets.topics:
                     raise ValueError("invalid topic choice")
 
@@ -159,8 +159,8 @@ class Maps:
 
 
 # Utility function to simultaneously shuffle three lists into the same order
-def _shuffle_together[T1, T2, T3](
-    list1: list[T1], list2: list[T2], list3: list[T3],
+def _shuffle_together[T, U, V](
+    list1: list[T], list2: list[U], list3: list[V],
 ) -> None:
     zipped = list(zip(list1, list2, list3))
     random.shuffle(zipped)
