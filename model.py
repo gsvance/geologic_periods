@@ -3,24 +3,25 @@
 Created 7 Mar 2023 by Greg Vance
 """
 
-from typing import Any, Callable, Dict, List, Tuple, Union
+from typing import Any, Callable
 
 import numpy as np
+import numpy.typing as npt
 from scipy import optimize
 
-from mytypes import Array, Choices
+from mytypes import Choices
 from organization import Sets, Maps
 from reporting import SolutionReport
 from scoring import classic_scoring
 
 
 def solve_geologic_periods_problem(
-    student_names: List[str],
-    topic_names: List[str],
-    student_choices: List[Choices],
-    high_priority_flags: Union[List[bool], None] = None,
-    scoring_system: Callable[[Sets], Array] = classic_scoring,
-    limits_per_topic: Union[Tuple[int, int], None] = None,
+    student_names: list[str],
+    topic_names: list[str],
+    student_choices: list[Choices],
+    high_priority_flags: list[bool] | None = None,
+    scoring_system: Callable[[Sets], npt.NDArray[np.int64]] = classic_scoring,
+    limits_per_topic: tuple[int, int] | None = None,
     shuffle_students: bool = True,
     solver_output: bool = False,
 ) -> SolutionReport:
@@ -74,12 +75,12 @@ def solve_geologic_periods_problem(
 
 
 def organize_input_data(
-    students: List[str],
-    topics: List[str],
-    choices: List[Choices],
-    high_priority: Union[List[bool], None],
+    students: list[str],
+    topics: list[str],
+    choices: list[Choices],
+    high_priority: list[bool] | None,
     shuffle: bool,
-) -> Tuple[Sets, Maps]:
+) -> tuple[Sets, Maps]:
     """Carry out initial organization of the problem's input data."""
 
     if high_priority is None:
@@ -91,10 +92,10 @@ def organize_input_data(
 
 def set_up_model(
     sets: Sets,
-    scoring_system: Callable[[Sets], Array],
-    limits_per_topic: Union[Tuple[int, int], None],
+    scoring_system: Callable[[Sets], npt.NDArray[np.int64]],
+    limits_per_topic: tuple[int, int] | None,
     solver_output: bool,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Translate model input data to a format understandble by milp()."""
 
     vars_shape = (sets.n_s, sets.n_t)
@@ -104,7 +105,7 @@ def set_up_model(
         raise TypeError("scoring system returned incompatible array shape")
 
     all_students_assigned = optimize.LinearConstraint(
-        np.vstack([_flat_ones_row(vars_shape, s) for s in sets.s]),
+        np.vstack([_flat_ones_row(vars_shape, int(s)) for s in sets.s]),
         lb=1, ub=1
     )
 
@@ -121,7 +122,7 @@ def set_up_model(
             raise ValueError("max per topic is too small")
 
     all_topics_balanced = optimize.LinearConstraint(
-        np.vstack([_flat_ones_col(vars_shape, t) for t in sets.t]),
+        np.vstack([_flat_ones_col(vars_shape, int(t)) for t in sets.t]),
         lb=min_per_topic, ub=max_per_topic
     )
 
@@ -135,14 +136,14 @@ def set_up_model(
 
 
 # Utility function to create and flatten an array with a single row of ones
-def _flat_ones_row(shape: Tuple[int, int], row: int):
+def _flat_ones_row(shape: tuple[int, int], row: int) -> npt.NDArray[np.int32]:
     matrix = np.zeros(shape, dtype='int32')
     matrix[row, :] = 1
     return matrix.flatten()
 
 
 # Utility function to create and flatten an array with a single column of ones
-def _flat_ones_col(shape: Tuple[int, int], col: int):
+def _flat_ones_col(shape: tuple[int, int], col: int) -> npt.NDArray[np.int32]:
     matrix = np.zeros(shape, dtype='int32')
     matrix[:, col] = 1
     return matrix.flatten()

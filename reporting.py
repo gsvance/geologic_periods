@@ -4,8 +4,9 @@ Created 7 Mar 2023 by Greg Vance
 """
 
 import numpy as np
+import numpy.typing as npt
 
-from mytypes import Array, Result
+from mytypes import Result
 from organization import Sets, Maps
 
 
@@ -15,14 +16,14 @@ class SolutionReport:
     def __init__(self, sets: Sets, maps: Maps, result: Result) -> None:
         """Initialize a new SolutionReport object with the provided data."""
 
-        self.sets = sets
-        self.maps = maps
-        self.result = result
+        self.sets: Sets = sets
+        self.maps: Maps = maps
+        self.result: Result = result
 
     def __str__(self) -> str:
         """Very involved str method that produces a human-readable report."""
 
-        out = list()
+        out: list[str] = list()
 
         out.append(_header('scipy solver report'))
         out.append(f'solver message: {self.result.message}')
@@ -32,7 +33,9 @@ class SolutionReport:
 
         out.append(_header('solution array'))
         vars_shape = (self.sets.n_s, self.sets.n_t)
-        assign = self.result.x.reshape(vars_shape).astype('int8')
+        assign: npt.NDArray[np.int8] = (
+            self.result.x.reshape(vars_shape).astype('int8')
+        )
         out.append(str(assign))
 
         out.append(_header('assignments by student'))
@@ -52,10 +55,10 @@ class SolutionReport:
         out.append(_header('assignments by topic'))
         indent = '  ' * 1
         for t in self.sets.t:
-            topic = self.maps.topics[t]
+            topic = self.maps.topics[int(t)]
             out.append(topic)
             s_t = _find_all_ones(assign[:, t])
-            students = [self.maps.students[s] for s in s_t]
+            students = [self.maps.students[int(s)] for s in s_t]
             if len(students) == 0:
                 out.append(f'{indent}(no students assigned)')
                 continue
@@ -81,16 +84,16 @@ def _header(text: str) -> str:
 
 
 # Utility function to find the indices of 1s in a Numpy array of mostly 0s
-def _find_all_ones(arr: Array) -> Array:
+def _find_all_ones(arr: npt.NDArray[np.int8]) -> npt.NDArray[np.int8]:
     assert np.all(np.logical_or(arr == 0, arr == 1))
     tup = np.nonzero(arr)
     assert len(tup) == 1
     ind = tup[0]
-    return ind
+    return ind.astype(np.int8)
 
 
 # Utility function for finding the index of a single 1 in a Numpy array of 0s
-def _find_one(arr: Array) -> int:
+def _find_one(arr: npt.NDArray[np.int8]) -> int:
     ind = _find_all_ones(arr)
     assert ind.size == 1
-    return ind[0]
+    return int(ind[0])

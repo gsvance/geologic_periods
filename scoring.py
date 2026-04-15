@@ -9,12 +9,12 @@ Created 7 Mar 2023 by Greg Vance
 """
 
 import numpy as np
+import numpy.typing as npt
 
-from mytypes import Array
 from organization import Sets
 
 
-def classic_scoring(sets: Sets) -> Array:
+def classic_scoring(sets: Sets) -> npt.NDArray[np.int64]:
     """Compute weights that implement the classic "tuple scoring" method.
 
     The tuple scoring method prioritizes "happy" students, then students who
@@ -76,26 +76,28 @@ def classic_scoring(sets: Sets) -> Array:
     # However, we don't want to make the point values any *larger* than they
     # absolutely need to be, because they grow exponentially and the float64s
     # used by the solver only have so many digits of precision...
-    weights = np.zeros((sets.n_s, sets.n_t), dtype='int64')
+    weights: npt.NDArray[np.int64] = np.zeros(
+        (sets.n_s, sets.n_t), dtype='int64',
+    )
     for s in sets.s:
         for t in sets.t:
             weight_sum = 0
             for c in sets.c:
                 pref = sets.pref[s, t, c]
-                weight_sum += pref * score_happy
-                weight_sum += pref * scores_any[c]
-                weight_sum += pref * sets.hp[s] * scores_hp[c]
+                weight_sum += int(pref) * score_happy
+                weight_sum += int(pref) * scores_any[int(c)]
+                weight_sum += int(pref) * int(sets.hp[s]) * scores_hp[int(c)]
             weights[s, t] = weight_sum
 
     # Do a quick test to try and detect if the classic scoring system is
     # breaking down. This could conceivably happen if n_s, n_c, and n_hp are
     # all just much too big for the strategy being used here.
     int_info = np.iinfo(weights.dtype)
-    nonzero = (weights != 0)
+    nonzero = weights != 0
     weight_min = np.amin(weights, initial=int_info.max, where=nonzero)
     weight_max = np.amax(weights, initial=int_info.min, where=nonzero)
     float_min, float_max = np.float64(weight_min), np.float64(weight_max)
-    if not (float_max + float_min > float_max):
+    if not float_max + float_min > float_max:
         raise RuntimeError("classic scoring system broke down")
 
     return weights

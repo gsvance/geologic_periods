@@ -6,36 +6,41 @@
 
 import itertools
 import random
-from typing import Dict, List, Tuple
+from typing import Final
 
 from model import solve_geologic_periods_problem
 from mytypes import Choices
 
 
 # Parameters to sets limits on the randomization
-N_VALIDATION_TRIALS = 100
-MIN_N_STUDENTS, MAX_N_STUDENTS = (1, 9)
-MIN_N_TOPICS, MAX_N_TOPICS = (1, 5)
-MIN_N_CHOICES, MAX_N_CHOICES = (1, 4)
-MIN_N_HIGH_PRIORITY, MAX_N_HIGH_PRIORITY = (0, 3)
-PROB_NONE_CHOICE = 1.0 / 50
+N_VALIDATION_TRIALS: Final[int] = 100
+MIN_N_STUDENTS: Final[int] = 1
+MAX_N_STUDENTS: Final[int] = 9
+MIN_N_TOPICS: Final[int] = 1
+MAX_N_TOPICS: Final[int] = 5
+MIN_N_CHOICES: Final[int] = 1
+MAX_N_CHOICES: Final[int] = 4
+MIN_N_HIGH_PRIORITY: Final[int] = 0
+MAX_N_HIGH_PRIORITY: Final[int] = 3
+PROB_NONE_CHOICE: Final[float] = 1.0 / 50
 
 
-def randomize() -> Tuple[List[str], List[str], List[Choices], List[bool], int]:
+def randomize() -> tuple[list[str], list[str], list[Choices], list[bool], int]:
     """Generate one randomized version of the geologic periods problem."""
 
     n_students = random.randint(MIN_N_STUDENTS, MAX_N_STUDENTS)
     n_topics = random.randint(MIN_N_TOPICS, MAX_N_TOPICS)
     n_choices = random.randint(MIN_N_CHOICES, min(MAX_N_CHOICES, n_topics))
-    n_high_priority = random.randint(MIN_N_HIGH_PRIORITY,
-                                     min(MAX_N_HIGH_PRIORITY, n_students))
+    n_high_priority = random.randint(
+        MIN_N_HIGH_PRIORITY, min(MAX_N_HIGH_PRIORITY, n_students),
+    )
 
     students = [f"Student {i+1}" for i in range(n_students)]
     topics = [f"Topic {i+1}" for i in range(n_topics)]
 
     choices = []
     n_none = 0
-    for student in students:
+    for _student in students:
         my_choices: Choices = random.sample(topics, k=n_choices)
         random.shuffle(my_choices)
         for i in range(n_choices):
@@ -52,12 +57,12 @@ def randomize() -> Tuple[List[str], List[str], List[Choices], List[bool], int]:
 
 
 def tuple_score(
-    students: List[str],
-    topics: List[str],
-    choices: List[Choices],
-    high_priority: List[bool],
-    assignment: Dict[str, str],
-) -> Tuple[int, ...]:
+    students: list[str],
+    topics: list[str],
+    choices: list[Choices],
+    high_priority: list[bool],
+    assignment: dict[str, str],
+) -> tuple[int, ...]:
     """Return the old-style tuple score for a set of assignments."""
 
     n_s = len(students)
@@ -70,7 +75,7 @@ def tuple_score(
         topic_sum = sum(
             int(assigned == topic) for assigned in assignment.values()
         )
-        if not (min_topic_sum <= topic_sum <= max_topic_sum):
+        if not min_topic_sum <= topic_sum <= max_topic_sum:
             return tuple((2 * n_c + 1) * [0])
 
     score = (2 * n_c + 1) * [0]
@@ -88,14 +93,14 @@ def tuple_score(
 
 
 def brute_force_solutions(
-    students: List[str],
-    topics: List[str],
-    choices: List[Choices],
-    high_priority: List[bool],
-) -> List[Dict[str, str]]:
+    students: list[str],
+    topics: list[str],
+    choices: list[Choices],
+    high_priority: list[bool],
+) -> list[dict[str, str]]:
     """Inefficiently produce the list of optimal solutions by brute force."""
 
-    solutions = []
+    solutions: list[dict[str, str]] = []
     best = tuple((2 * len(choices) + 1) * [0])
 
     all_options = itertools.product(*[list(topics) for _ in students])
@@ -114,29 +119,36 @@ def brute_force_solutions(
     return solutions
 
 
-# Run several randomized validation trials to check the model.py implementation
-for i in range(N_VALIDATION_TRIALS):
+def run_trials():
+    """Run several validation trials to check the model.py implementation."""
 
-    print(f'Running trial {i+1} of {N_VALIDATION_TRIALS}...')
+    for i in range(N_VALIDATION_TRIALS):
 
-    s, t, c, hp, nn = randomize()
-    print(f'Random: n_s={len(s)}, n_t={len(t)}, n_c={len(c[0])},'
-          f' n_hp={sum(hp)}, n_n={nn}')
+        print(f'Running trial {i+1} of {N_VALIDATION_TRIALS}...')
 
-    report = solve_geologic_periods_problem(s, t, c, hp)
-    assign = report.result.x.reshape((len(s), len(t))).astype('int8')
-    solution = dict()
-    for student in report.sets.students_unshuffled:
-        i_s = report.maps.s[student]
-        i_t = [int(x) for x in assign[i_s, :]].index(1)
-        solution[student] = t[i_t]
+        s, t, c, hp, nn = randomize()
+        print(
+            f'Random: n_s={len(s)}, n_t={len(t)}, n_c={len(c[0])},'
+            + f' n_hp={sum(hp)}, n_n={nn}'
+        )
 
-    if solution not in brute_force_solutions(s, t, c, hp):
-        print("FAILED!")
-        print(s)
-        print(t)
-        print(c)
-        print(hp)
-        break
-    else:
+        report = solve_geologic_periods_problem(s, t, c, hp)
+        assign = report.result.x.reshape((len(s), len(t))).astype('int8')
+        solution: dict[str, str] = {}
+        for student in report.sets.students_unshuffled:
+            i_s = report.maps.s[student]
+            i_t = [int(x) for x in assign[i_s, :]].index(1)
+            solution[student] = t[i_t]
+
+        if solution not in brute_force_solutions(s, t, c, hp):
+            print("FAILED!")
+            print(s)
+            print(t)
+            print(c)
+            print(hp)
+            break
+
         print("Succeeded.")
+
+
+run_trials()

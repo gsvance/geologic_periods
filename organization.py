@@ -4,9 +4,9 @@ Created 7 Mar 2023 by Greg Vance
 """
 
 import random
-from typing import Dict, List, Tuple, Union
 
 import numpy as np
+import numpy.typing as npt
 
 from mytypes import Choices
 
@@ -16,20 +16,20 @@ class Sets:
 
     def __init__(
         self,
-        students: List[str],
-        topics: List[str],
-        choices: List[Choices],
-        high_priority: List[bool],
+        students: list[str],
+        topics: list[str],
+        choices: list[Choices],
+        high_priority: list[bool],
         shuffle: bool,
     ) -> None:
         """Initialize a new Sets object containing the given problem data."""
 
         # Make copies of all the problem data
-        self.students = list(students)
-        self.topics = list(topics)
-        self.choices = list(map(list, choices))
-        self.high_priority = list(high_priority)
-        self.shuffle = shuffle
+        self.students: list[str] = list(students)
+        self.topics: list[str] = list(topics)
+        self.choices: list[Choices] = list(map(list, choices))
+        self.high_priority: list[bool] = list(high_priority)
+        self.shuffle: bool = shuffle
 
         self._validate()
 
@@ -37,7 +37,7 @@ class Sets:
         # equal chance of good or bad luck if there exist multiple optimal
         # solutions. Save the input ordering for the reporting stage after the
         # model has been solved.
-        self.students_unshuffled = list(self.students)
+        self.students_unshuffled: list[str] = list(self.students)
         if self.shuffle:
             _shuffle_together(self.students, self.choices, self.high_priority)
 
@@ -62,20 +62,24 @@ class Sets:
     def _populate(self) -> None:
 
         # Create attribute variables for the sizes of each set
-        self.n_s = len(self.students)
-        self.n_t = len(self.topics)
-        self.n_c = len(self.choices[0])
-        self.n_hp = sum(int(flag) for flag in self.high_priority)
+        self.n_s: int = len(self.students)
+        self.n_t: int = len(self.topics)
+        self.n_c: int = len(self.choices[0])
+        self.n_hp: int = sum(int(flag) for flag in self.high_priority)
 
         # Create Numpy array sets of inidices and high priority flags
-        self.s = np.arange(self.n_s)
-        self.t = np.arange(self.n_t)
-        self.c = np.arange(self.n_c)
-        self.hp = np.array(self.high_priority, dtype='int8')
+        self.s: npt.NDArray[np.int32] = np.arange(self.n_s, dtype='int32')
+        self.t: npt.NDArray[np.int32] = np.arange(self.n_t, dtype='int32')
+        self.c: npt.NDArray[np.int32] = np.arange(self.n_c, dtype='int32')
+        self.hp: npt.NDArray[np.int8] = np.array(
+            self.high_priority, dtype='int8',
+        )
 
         # Finally, generate the student preferences array to be passed off the
         # the model's scoring_system function
-        self.pref = np.zeros((self.n_s, self.n_t, self.n_c), dtype='int8')
+        self.pref: npt.NDArray[np.int8] = np.zeros(
+            (self.n_s, self.n_t, self.n_c), dtype='int8',
+        )
         for s in self.s:
             for t, topic in zip(self.t, self.topics):
                 for c, choice in zip(self.c, self.choices[s]):
@@ -88,7 +92,7 @@ class Maps:
     def __init__(self, sets: Sets) -> None:
         """Initialize a new Maps object using the problem data from sets."""
 
-        self.sets = sets
+        self.sets: Sets = sets
         self._validate()
         self._populate()
         del self.sets  # Remove the reference now that we no longer need it
@@ -104,46 +108,47 @@ class Maps:
             if len(set(choices_sublist)) != self.sets.n_c:
                 raise ValueError("non-unique choices")
             for topic_choice in choices_sublist:
-                non_none = (topic_choice is not None)
+                non_none = topic_choice is not None
                 if non_none and topic_choice not in self.sets.topics:
                     raise ValueError("invalid topic choice")
 
     def _populate(self) -> None:
 
         # Make maps from student or topic names to the Numpy integer sets
-        self.s: Dict[str, int] = {
-            name: s for name, s in zip(self.sets.students, self.sets.s)
+        self.s: dict[str, int] = {
+            name: int(s) for name, s in zip(self.sets.students, self.sets.s)
         }
-        self.t: Dict[str, int] = {
-            name: t for name, t in zip(self.sets.topics, self.sets.t)
+        self.t: dict[str, int] = {
+            name: int(t) for name, t in zip(self.sets.topics, self.sets.t)
         }
-        self.hp: Dict[str, int] = {
-            name: hp for name, hp in zip(self.sets.students, self.sets.hp)
+        self.hp: dict[str, int] = {
+            name: int(hp) for name, hp in zip(self.sets.students, self.sets.hp)
         }
 
         # Make maps from integer indices to the friendlier names and booleans
-        self.students: Dict[int, str] = {
+        self.students: dict[int, str] = {
             s: name for name, s in self.s.items()
         }
-        self.topics: Dict[int, str] = {
+        self.topics: dict[int, str] = {
             t: name for name, t in self.t.items()
         }
-        self.high_priority: Dict[int, bool] = {
-            s: flag for s, flag in zip(self.sets.s, self.sets.high_priority)
+        self.high_priority: dict[int, bool] = {
+            int(s): flag
+            for s, flag in zip(self.sets.s, self.sets.high_priority)
         }
 
         # Now for the complicated (but probably most important) part
         # Make maps for retrieving a student's opinion on a particular topic
-        self.c: Dict[Tuple[str, str], Union[int, None]] = dict()
+        self.c: dict[tuple[str, str], int | None] = dict()
         for s, choices_sublist in zip(self.sets.s, self.sets.choices):
-            student = self.students[s]
+            student = self.students[int(s)]
             for topic in self.sets.topics:
                 try:
                     c = choices_sublist.index(topic)
                 except ValueError:
                     c = None
                 self.c[student, topic] = c
-        self.choices: Dict[Tuple[int, int], Union[str, None]] = dict()
+        self.choices: dict[tuple[int, int], str | None] = dict()
         for (student, topic), c in self.c.items():
             s = self.s[student]
             t = self.t[topic]
@@ -154,7 +159,9 @@ class Maps:
 
 
 # Utility function to simultaneously shuffle three lists into the same order
-def _shuffle_together(list1: List, list2: List, list3: List) -> None:
+def _shuffle_together[T, U, V](
+    list1: list[T], list2: list[U], list3: list[V],
+) -> None:
     zipped = list(zip(list1, list2, list3))
     random.shuffle(zipped)
     list1[:] = [z[0] for z in zipped]
