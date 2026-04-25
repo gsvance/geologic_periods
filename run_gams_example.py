@@ -4,7 +4,7 @@
 # Created 7 Mar 2023 by Greg Vance
 
 
-from model import solve_geologic_periods_problem, classic_scoring
+from scoring_model import solve_geologic_periods_problem, classic_scoring
 from mytypes import Choices
 
 

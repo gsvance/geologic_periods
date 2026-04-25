@@ -8,7 +8,7 @@ import itertools
 import random
 from typing import Final
 
-from model import solve_geologic_periods_problem
+from scoring_model import solve_geologic_periods_problem
 from mytypes import Choices
 
 
